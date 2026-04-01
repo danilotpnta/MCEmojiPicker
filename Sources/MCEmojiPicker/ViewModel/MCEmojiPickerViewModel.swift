@@ -130,11 +130,27 @@ final class MCEmojiPickerViewModel: MCEmojiPickerViewModelProtocol {
     private func filterCategoriesBySearchText(_ categories: [MCEmojiCategory], searchText: String) -> [MCEmojiCategory] {
         let lowercasedSearchText = searchText.lowercased()
         return categories.compactMap { category in
-            let filteredEmojis = category.emojis.filter { $0.searchKey.lowercased().contains(lowercasedSearchText) }
+            let filteredEmojis = category.emojis.filter {
+                searchableText(from: $0.searchKey).contains(lowercasedSearchText)
+            }
             guard !filteredEmojis.isEmpty else { return nil }
             var filteredCategory = category
             filteredCategory.emojis = filteredEmojis
             return filteredCategory
         }
+    }
+
+    /// Converts a camelCase searchKey (e.g. "leafyGreen") into a lowercased
+    /// space-separated string (e.g. "leafy green") so individual words are
+    /// independently searchable.
+    private func searchableText(from camelCase: String) -> String {
+        var result = ""
+        for char in camelCase {
+            if char.isUppercase, !result.isEmpty {
+                result += " "
+            }
+            result += char.lowercased()
+        }
+        return result
     }
 }
