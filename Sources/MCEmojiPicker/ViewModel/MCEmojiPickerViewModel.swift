@@ -68,12 +68,23 @@ final class MCEmojiPickerViewModel: MCEmojiPickerViewModelProtocol {
     }
     
     // MARK: - Private Properties
-    
+
     /// All emoji categories.
     private var allEmojiCategories = [MCEmojiCategory]()
-    
+
+    /// CLDR keyword lookup: emoji character → array of search keywords.
+    /// Loaded once at init from the bundled cldrEmojiKeywords.json resource.
+    /// Enables searching by aliases (e.g. "lettuce" → 🥬, "aubergine" → 🍆).
+    private var cldrKeywords: [String: [String]] = {
+        guard let url = Bundle.module.url(forResource: "cldrEmojiKeywords", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([String: [String]].self, from: data)
+        else { return [:] }
+        return decoded
+    }()
+
     // MARK: - Initializers
-    
+
     init(unicodeManager: MCUnicodeManagerProtocol = MCUnicodeManager()) {
         allEmojiCategories = unicodeManager.getEmojisForCurrentIOSVersion()
         // Increment usage of each emoji upon selection
@@ -130,8 +141,14 @@ final class MCEmojiPickerViewModel: MCEmojiPickerViewModelProtocol {
     private func filterCategoriesBySearchText(_ categories: [MCEmojiCategory], searchText: String) -> [MCEmojiCategory] {
         let lowercasedSearchText = searchText.lowercased()
         return categories.compactMap { category in
-            let filteredEmojis = category.emojis.filter {
-                searchableText(from: $0.searchKey).contains(lowercasedSearchText)
+            let filteredEmojis = category.emojis.filter { emoji in
+                // 1. Match against the camelCase-split primary name (e.g. "leafy green")
+                if searchableText(from: emoji.searchKey).contains(lowercasedSearchText) { return true }
+                // 2. Match against CLDR synonym keywords (e.g. "lettuce", "aubergine")
+                if let keywords = cldrKeywords[emoji.string] {
+                    return keywords.contains { $0.contains(lowercasedSearchText) }
+                }
+                return false
             }
             guard !filteredEmojis.isEmpty else { return nil }
             var filteredCategory = category

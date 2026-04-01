@@ -22,5 +22,9 @@ All changes made to this fork on top of the upstream [izyumkin/MCEmojiPicker](ht
 ### Changed
 - **Swift language version** — bumped `swiftLanguageVersions` in `Package.swift` from `[.v4_2]` to `[.v5]`.
 
-### Known Limitations / Planned
-- **No synonym/alias support** — searching "lettuce" does not find 🥬 (leafy green) because the emoji data only contains primary Unicode names, not aliases. Apple's emoji keyboard uses the [Unicode CLDR annotations dataset](https://github.com/unicode-org/cldr-json) which includes synonyms for every emoji. Embedding the CLDR `en/annotations.json` as a bundled resource and using it to augment search is the planned fix for this.
+---
+
+## [fork] feature/cldr-search-aliases
+
+### Added
+- **CLDR synonym search** — embeds a pre-processed subset of the [Unicode CLDR annotations dataset](https://github.com/unicode-org/cldr-json) (`cldrEmojiKeywords.json`, ~77KB) as a bundled resource. The ViewModel loads it once at init and uses it to augment search: if the query does not match the primary name, it falls back to checking CLDR keywords. This gives the same alias coverage as the iOS system keyboard — e.g. "lettuce" → 🥬, "aubergine" → 🍆, "courgette" → 🥒, "zucchini" → 🥒. Covers 1,227 of the 1,870 emojis MCEmojiPicker ships (remaining emojis are matched by primary name only).
