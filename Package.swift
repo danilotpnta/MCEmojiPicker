@@ -29,5 +29,5 @@ let package = Package(
         ),
         .executableTarget(name: "MCEmojiPickerJSON", dependencies: ["MCEmojiPicker"])
     ],
-    swiftLanguageVersions: [.v4_2]
+    swiftLanguageVersions: [.v5]
 )
