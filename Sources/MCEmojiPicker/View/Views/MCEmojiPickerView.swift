@@ -81,7 +81,7 @@ final class MCEmojiPickerView: UIView {
         searchBar.placeholder = "Search emojis..."
         searchBar.searchBarStyle = .minimal
         searchBar.backgroundColor = .clear
-        searchBar.returnKeyType = .done
+        searchBar.returnKeyType = .default
         return searchBar
     }()
 
