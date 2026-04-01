@@ -82,6 +82,7 @@ final class MCEmojiPickerView: UIView {
         searchBar.searchBarStyle = .minimal
         searchBar.backgroundColor = .clear
         searchBar.returnKeyType = .default
+        searchBar.searchTextField.enablesReturnKeyAutomatically = false
         return searchBar
     }()
 
