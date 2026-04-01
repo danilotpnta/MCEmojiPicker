@@ -82,7 +82,6 @@ final class MCEmojiPickerView: UIView {
         searchBar.searchBarStyle = .minimal
         searchBar.backgroundColor = .clear
         searchBar.returnKeyType = .default
-        searchBar.searchTextField.enablesReturnKeyAutomatically = false
         return searchBar
     }()
 
@@ -178,6 +177,9 @@ final class MCEmojiPickerView: UIView {
         collectionView.delegate = self
         collectionView.dataSource = self
         searchBar.delegate = self
+        if #available(iOS 13.0, *) {
+            searchBar.searchTextField.enablesReturnKeyAutomatically = false
+        }
     }
     
     private func setupCollectionViewBottomInsets() {
