@@ -42,7 +42,9 @@ protocol MCEmojiPickerViewDelegate: AnyObject {
 }
 
 final class MCEmojiPickerView: UIView {
-    
+    // Prevent duplicate UI setup on repeated draw/layout cycles
+    private var didSetupUIOnce = false
+
     // MARK: - Public Properties
     
     public var selectedEmojiCategoryTintColor = Constants.defaultSelectedEmojiCategoryTintColor
@@ -139,6 +141,8 @@ final class MCEmojiPickerView: UIView {
     
     override func draw(_ rect: CGRect) {
         super.draw(rect)
+        guard !didSetupUIOnce else { return }
+        didSetupUIOnce = true
         setupCategoryViews()
         setupSearchBarLayout()
         setupCollectionViewLayout()
@@ -232,6 +236,8 @@ final class MCEmojiPickerView: UIView {
     }
     
     private func setupCategoryViews() {
+        categoriesStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        categoryViews.removeAll()
         for categoryIndex in 0...emojiCategoryTypes.count - 1 {
             let categoryView = MCTouchableEmojiCategoryView(
                 delegate: self,
